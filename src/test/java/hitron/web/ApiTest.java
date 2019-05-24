@@ -2,35 +2,56 @@ package hitron.web;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static util.Utils.getProp;
+
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.forwarding.ForwardingRule;
-import hitron.forwarding.ForwardingRules;
 import hitron.forwarding.ForwardingStatus;
 
 public class ApiTest {
 
-	private Api api;
-	private Random random = new Random();
-	private static final String username = "cusadmin";
-	private static final String password = "658476611523";
+	private static final String ROUTER_IP = getProp("hitron.host");
+	private static final String USERNAME = getProp("hitron.user");
+	private static final String PASSWORD = getProp("hitron.password");
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+	private static ForwardingStatus defaultStatus;
+	private static List<ForwardingRule> defaultRules;
+
+	private final Random random = new Random();
+
+	private static Api api;
 
 	@Before
 	public void initApi() {
-		api = new Api("http://192.168.0.1");
+		api = new Api("http://" + ROUTER_IP);
+	}
+
+	@BeforeClass
+	public static void backupRules() throws IOException {
+		api = new Api("http://" + ROUTER_IP);
+		try {
+			api.login(USERNAME, PASSWORD);
+			defaultStatus = api.getForwardingStatus();
+			defaultRules = api.getForwardingRules();
+		} finally {
+			api.close();
+		}
 	}
 
 	@AfterClass
-	public static void restoreRules() {
-		Api api = new Api("http://192.168.0.1");
-		ForwardingStatus defaultStatus = new ForwardingStatus(
-				"{ \"rulesOnOff\":\"Enabled\", \"privateLan\":\"192.168.0.1\", \"subMask\":\"255.255.255.0\", \"HttpPort\":\"8080\", \"HttpsPort\":\"8181\", \"TelnetPort\":\"2323\", \"SshPort\":\"22\", \"forwardingRuleStatus\":\"1\" }");
-		ForwardingRules defaultRules = new ForwardingRules(
-				"[{\"ruleIndex\":1,\"appName\":\"Skype-UDP-at-192.168.0.11%3A48545-%283986%29\",\"pubStart\":\"48545\",\"pubEnd\":\"48545\",\"priStart\":\"48545\",\"priEnd\":\"48545\",\"protocal\":\"UDP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":2,\"appName\":\"Skype-TCP-at-192.168.0.11%3A48545-%283986%29\",\"pubStart\":\"48545\",\"pubEnd\":\"48545\",\"priStart\":\"48545\",\"priEnd\":\"48545\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":3,\"appName\":\"uTorrent-%28TCP%29\",\"pubStart\":\"54893\",\"pubEnd\":\"54893\",\"priStart\":\"54893\",\"priEnd\":\"54893\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":4,\"appName\":\"uTorrent-%28UDP%29\",\"pubStart\":\"54893\",\"pubEnd\":\"54893\",\"priStart\":\"54893\",\"priEnd\":\"54893\",\"protocal\":\"UDP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":5,\"appName\":\"RDP\",\"pubStart\":\"3396\",\"pubEnd\":\"3396\",\"priStart\":\"3389\",\"priEnd\":\"3389\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.6\",\"remoteIpStar\":\"72.136.0.12\",\"remoteIpEnd\":\"72.143.255.253\",\"remoteOnOff\":\"Specific\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":6,\"appName\":\"Transmission-at-51413\",\"pubStart\":\"51413\",\"pubEnd\":\"51413\",\"priStart\":\"51413\",\"priEnd\":\"51413\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.18\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"},{\"ruleIndex\":7,\"appName\":\"Transmission-at-51413-51413\",\"pubStart\":\"51413\",\"pubEnd\":\"51413\",\"priStart\":\"51413\",\"priEnd\":\"51413\",\"protocal\":\"UDP\",\"localIpAddr\":\"192.168.0.18\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"ON\"}]");
+	public static void restoreRules() throws IOException {
+		api = new Api("http://" + ROUTER_IP);
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 			api.setForwardingStatus(defaultStatus);
 			api.setForwardingRules(defaultRules);
 		} finally {
@@ -39,20 +60,25 @@ public class ApiTest {
 	}
 
 	private ForwardingRule getRandomRule() {
+		ForwardingRule result = null;
 		String randomName = String.format("Rule_%d", Math.abs(random.nextInt()));
 		int randomPort = random.nextInt(65534) + 1;
-		String init = String.format(
+		String json = String.format(
 				"{\"ruleIndex\":1,\"appName\":\"%1$s\",\"pubStart\":\"%2$d\",\"pubEnd\":\"%2$d\",\"priStart\":\"%2$d\",\"priEnd\":\"%2$d\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"OFF\"}",
 				randomName, randomPort);
-		ForwardingRule rule = new ForwardingRule(init);
-		return rule;
+		try {
+			result = OBJECT_MAPPER.readValue(json, ForwardingRule.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	@Test
 	public void whenLoginThenReturnTrue() {
 		boolean result = false;
 		try {
-			result = api.login(username, password);
+			result = api.login(USERNAME, PASSWORD);
 		} finally {
 			api.close();
 		}
@@ -62,7 +88,7 @@ public class ApiTest {
 	@Test
 	public void whenLoginThenCsrfTokenSaved() {
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 		} finally {
 			api.close();
 		}
@@ -73,7 +99,7 @@ public class ApiTest {
 	public void whenGetForwardingStatusThenStatusReturned() {
 		ForwardingStatus status = null;
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 			status = api.getForwardingStatus();
 		} finally {
 			api.close();
@@ -86,7 +112,7 @@ public class ApiTest {
 		ForwardingStatus status = null;
 		boolean enabledOld = false;
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 			status = api.getForwardingStatus();
 			enabledOld = status.getEnabled();
 			status.setEnabled(!enabledOld);
@@ -100,9 +126,9 @@ public class ApiTest {
 
 	@Test
 	public void whenGetForwardingRulesThenRulesReturned() {
-		ForwardingRules rules = null;
+		List<ForwardingRule> rules = null;
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 			rules = api.getForwardingRules();
 		} finally {
 			api.close();
@@ -111,11 +137,11 @@ public class ApiTest {
 	}
 
 	@Test
-	public void whenAddForwardingRuleThenRulePresent() {
-		ForwardingRules rules = null;
+	public void whenAddForwardingRuleThenRulePresent() throws JsonProcessingException {
+		List<ForwardingRule> rules = null;
 		ForwardingRule newRule = getRandomRule();
 		try {
-			api.login(username, password);
+			api.login(USERNAME, PASSWORD);
 			rules = api.getForwardingRules();
 			rules.add(newRule);
 			api.setForwardingRules(rules);
@@ -123,25 +149,26 @@ public class ApiTest {
 		} finally {
 			api.close();
 		}
-		assertThat(rules.getRules(), hasItem(newRule));
+		rules.contains(newRule);
+		assertThat(rules, hasItem(newRule));
 	}
 
 	@Test
-	public void whenRemoveForwardingRuleThenRuleNotPresent() {
+	public void whenRemoveForwardingRuleThenRuleNotPresent() throws JsonProcessingException {
 		ForwardingRule newRule = getRandomRule();
-		ForwardingRules rulesAfterRemoval = null;
+		List<ForwardingRule> rulesAfterRemoval = null;
 		try {
-			api.login(username, password);
-			ForwardingRules rules = api.getForwardingRules();
+			api.login(USERNAME, PASSWORD);
+			List<ForwardingRule> rules = api.getForwardingRules();
 			rules.add(newRule);
 			api.setForwardingRules(rules);
-			rules.remove(rules.getRules().indexOf(newRule));
+			rules.remove(rules.indexOf(newRule));
 			api.setForwardingRules(rules);
 			rulesAfterRemoval = api.getForwardingRules();
 		} finally {
 			api.close();
 		}
-		assertThat(rulesAfterRemoval.getRules(), not(hasItem(newRule)));
+		assertThat(rulesAfterRemoval, not(hasItem(newRule)));
 	}
 
 }

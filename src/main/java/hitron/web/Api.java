@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
@@ -15,7 +16,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import hitron.forwarding.ForwardingRules;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import lombok.Getter;
 
@@ -33,6 +38,7 @@ public class Api {
 	private static final String GET_FW_RULES_URI = "/data/getForwardingRules.asp";
 	private static final String SET_FW_STATUS_URI = "/goform/Firewall";
 	private static final String SET_FW_RULES_URI = "/goform/PfwCollection";
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	private final CloseableHttpClient client = HttpClients.createDefault();
 
@@ -78,8 +84,14 @@ public class Api {
 		return new ForwardingStatus(get(GET_FW_STATUS_URI));
 	}
 
-	public ForwardingRules getForwardingRules() {
-		return new ForwardingRules(get(GET_FW_RULES_URI));
+	public List<ForwardingRule> getForwardingRules() {
+		try {
+			return objectMapper.readValue(get(GET_FW_RULES_URI), new TypeReference<List<ForwardingRule>>() {
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private String encodeValue(String value) {
@@ -98,9 +110,13 @@ public class Api {
 		post(SET_FW_STATUS_URI, body);
 	}
 
-	public void setForwardingRules(ForwardingRules rules) {
-		String body = String.format("model=%s&csrf_token=%s&_method=PUT", encodeValue(rules.toString()), csrfToken);
-		post(SET_FW_RULES_URI, body);
+	public void setForwardingRules(List<ForwardingRule> rules) {
+		try {
+			String body = String.format("model=%s&csrf_token=%s&_method=PUT", encodeValue(objectMapper.writeValueAsString(rules)), csrfToken);
+			post(SET_FW_RULES_URI, body);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String get(String url) {

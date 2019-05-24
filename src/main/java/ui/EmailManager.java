@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -11,17 +12,15 @@ import java.util.regex.Pattern;
 import email.Email;
 import email.Email.Message;
 import hitron.forwarding.ForwardingRule;
-import hitron.forwarding.ForwardingRules;
 import hitron.forwarding.ForwardingStatus;
 import hitron.web.Api;
-
 import static util.Utils.*;
 
 public class EmailManager {
 
 	private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private Logger log = Logger.getLogger(EmailManager.class.getName());
-	private final Pattern IP_ADDRESS = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3}");
+	private final Pattern IP_ADDRESS_RX = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3}");
 
 	public void run() {
 		LocalDateTime lastCheckDate = LocalDateTime.now();
@@ -60,7 +59,7 @@ public class EmailManager {
 	}
 
 	private String dispatch(String message) {
-		Matcher ipMatcher = IP_ADDRESS.matcher(message);
+		Matcher ipMatcher = IP_ADDRESS_RX.matcher(message);
 		if (ipMatcher.find()) {
 			String remoteIp = ipMatcher.group(0);
 			return applyFirewallRule(remoteIp, true);
@@ -70,16 +69,26 @@ public class EmailManager {
 		return null;
 	}
 
+	private static boolean removeRuleIfNameExists(List<ForwardingRule> rules, String ruleName) {
+		for (ForwardingRule rule : rules) {
+			if (rule.getAppName().equalsIgnoreCase(ruleName)) {
+				rules.remove(rule);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private String applyFirewallRule(String remoteIp, boolean enable) {
 		StringJoiner report = new StringJoiner(System.lineSeparator());
 		Api api = new Api("http://" + getProp("hitron.host"));
-		ForwardingRules rules = null;
+		List<ForwardingRule> rules = null;
 
-		String ruleName = getProp("hitron.rulr");
-		int port = 3396;// random.nextInt(65534) + 1;
-		String init = String.format(
-				"{\"ruleIndex\":1,\"appName\":\"%s\",\"pubStart\":\"%2$d\",\"pubEnd\":\"%2$d\",\"priStart\":\"3389\",\"priEnd\":\"3389\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.6\",\"remoteIpStar\":\"%3$s\",\"remoteIpEnd\":\"%3$s\",\"remoteOnOff\":\"Specific\",\"ruleOnOff\":\"ON\"}",
-				ruleName, port, remoteIp);
+		String ruleName = getProp("hitron.rule");
+		String port = "3396";
+		ForwardingRule rule = new ForwardingRule(1, ruleName, port, port, "3389", "3389", "TCP", "192.168.0.6", remoteIp, remoteIp, "Specific",
+				enable ? "ON" : "OFF");
+
 		try {
 			api.login(getProp("hitron.user"), getProp("hitron.password"));
 			// Enable Firewall
@@ -90,16 +99,10 @@ public class EmailManager {
 
 			// Add forwarding
 			rules = api.getForwardingRules();
-			int index = rules.findByName("RDP");
+			boolean existed = removeRuleIfNameExists(rules, "RDP");
 
-			report.add("RDP forwarding (before): " + (index >= 0 ? "Assigned" : "None"));
+			report.add(ruleName + " rule existed: " + existed);
 
-			if (index >= 0) {
-				rules.remove(index);
-			}
-
-			ForwardingRule rule = new ForwardingRule(init);
-			rule.setRuleOnOff(enable);
 			rules.add(rule);
 			api.setForwardingRules(rules);
 

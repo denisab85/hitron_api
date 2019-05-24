@@ -4,24 +4,26 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@EqualsAndHashCode
+@NoArgsConstructor
 public class ForwardingStatus {
 
-	boolean rulesOnOff = true;
-	String privateLan = "192.168.0.1";
-	String subMask = "255.255.255.0";
-	int httpPort = 8080;
-	int httpsPort = 8181;
-	int telnetPort = 2323;
-	int sshPort = 22;
-	int forwardingRuleStatus = 1;
+	private boolean rulesOnOff = true;
+	private String privateLan = "192.168.0.1";
+	private String subMask = "255.255.255.0";
+	private int httpPort = 8080;
+	private int httpsPort = 8181;
+	private int telnetPort = 2323;
+	private int sshPort = 22;
+	private int forwardingRuleStatus = 1;
 
 	private static final String IMPORT_STRING = "^\\[?\\s*\\{\\s*[\\w\\\":\\.,\\s*]+\\}\\s*\\]?$";
 	private static final String IMPORT_RECORD = "\\\"(\\w+)\\\":\\\"?([-%\\w\\.]+)\\\"?";
 	private static final String FORMAT_STRING = "\"%s\":\"%s\"";
 	private static final String FORMAT_INT = "\"%s\":\"%d\"";
-
-	public ForwardingStatus() {
-	}
 
 	public ForwardingStatus(String string) {
 		if (!string.trim().matches(IMPORT_STRING)) {
