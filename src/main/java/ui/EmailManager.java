@@ -11,9 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import email.Email;
 import email.Email.Message;
+import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
-import hitron.web.Api;
+
 import static util.Utils.*;
 
 public class EmailManager {
@@ -81,7 +82,7 @@ public class EmailManager {
 
 	private String applyFirewallRule(String remoteIp, boolean enable) {
 		StringJoiner report = new StringJoiner(System.lineSeparator());
-		Api api = new Api("http://" + getProp("hitron.host"));
+		Api api = new Api("http://" + getProp("hitron.host"), getProp("hitron.user"), getProp("hitron.password"));
 		List<ForwardingRule> rules = null;
 
 		String ruleName = getProp("hitron.rule");
@@ -90,7 +91,6 @@ public class EmailManager {
 				enable ? "ON" : "OFF");
 
 		try {
-			api.login(getProp("hitron.user"), getProp("hitron.password"));
 			// Enable Firewall
 			ForwardingStatus status = api.getForwardingStatus();
 			report.add("Forwarding status (before): " + (status.getEnabled() ? "Enabled" : "Disabled"));

@@ -7,12 +7,16 @@ import static util.Utils.getProp;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 
@@ -32,14 +36,18 @@ public class ApiTest {
 
 	@Before
 	public void initApi() {
-		api = new Api("http://" + ROUTER_IP);
+		api = new Api("http://" + ROUTER_IP, USERNAME, PASSWORD);
+	}
+
+	@After
+	public void closeApi() {
+		api.close();
 	}
 
 	@BeforeClass
 	public static void backupRules() throws IOException {
-		api = new Api("http://" + ROUTER_IP);
+		api = new Api("http://" + ROUTER_IP, USERNAME, PASSWORD);
 		try {
-			api.login(USERNAME, PASSWORD);
 			defaultStatus = api.getForwardingStatus();
 			defaultRules = api.getForwardingRules();
 		} finally {
@@ -49,9 +57,8 @@ public class ApiTest {
 
 	@AfterClass
 	public static void restoreRules() throws IOException {
-		api = new Api("http://" + ROUTER_IP);
+		api = new Api("http://" + ROUTER_IP, USERNAME, PASSWORD);
 		try {
-			api.login(USERNAME, PASSWORD);
 			api.setForwardingStatus(defaultStatus);
 			api.setForwardingRules(defaultRules);
 		} finally {
@@ -75,35 +82,14 @@ public class ApiTest {
 	}
 
 	@Test
-	public void whenLoginThenReturnTrue() {
-		boolean result = false;
-		try {
-			result = api.login(USERNAME, PASSWORD);
-		} finally {
-			api.close();
-		}
-		assertThat(result, is(true));
-	}
-
-	@Test
 	public void whenLoginThenCsrfTokenSaved() {
-		try {
-			api.login(USERNAME, PASSWORD);
-		} finally {
-			api.close();
-		}
 		assertThat(api.getCsrfToken(), matchesPattern("\\d{20}"));
 	}
 
 	@Test
 	public void whenGetForwardingStatusThenStatusReturned() {
 		ForwardingStatus status = null;
-		try {
-			api.login(USERNAME, PASSWORD);
-			status = api.getForwardingStatus();
-		} finally {
-			api.close();
-		}
+		status = api.getForwardingStatus();
 		assertThat(status, is(notNullValue()));
 	}
 
@@ -111,28 +97,18 @@ public class ApiTest {
 	public void whenSetForwardingStatusThenStatusUpdated() {
 		ForwardingStatus status = null;
 		boolean enabledOld = false;
-		try {
-			api.login(USERNAME, PASSWORD);
-			status = api.getForwardingStatus();
-			enabledOld = status.getEnabled();
-			status.setEnabled(!enabledOld);
-			api.setForwardingStatus(status);
-			status = api.getForwardingStatus();
-		} finally {
-			api.close();
-		}
+		status = api.getForwardingStatus();
+		enabledOld = status.getEnabled();
+		status.setEnabled(!enabledOld);
+		api.setForwardingStatus(status);
+		status = api.getForwardingStatus();
 		assertThat(status.getEnabled(), not(enabledOld));
 	}
 
 	@Test
 	public void whenGetForwardingRulesThenRulesReturned() {
 		List<ForwardingRule> rules = null;
-		try {
-			api.login(USERNAME, PASSWORD);
-			rules = api.getForwardingRules();
-		} finally {
-			api.close();
-		}
+		rules = api.getForwardingRules();
 		assertThat(rules, is(notNullValue()));
 	}
 
@@ -140,15 +116,10 @@ public class ApiTest {
 	public void whenAddForwardingRuleThenRulePresent() throws JsonProcessingException {
 		List<ForwardingRule> rules = null;
 		ForwardingRule newRule = getRandomRule();
-		try {
-			api.login(USERNAME, PASSWORD);
-			rules = api.getForwardingRules();
-			rules.add(newRule);
-			api.setForwardingRules(rules);
-			rules = api.getForwardingRules();
-		} finally {
-			api.close();
-		}
+		rules = api.getForwardingRules();
+		rules.add(newRule);
+		api.setForwardingRules(rules);
+		rules = api.getForwardingRules();
 		rules.contains(newRule);
 		assertThat(rules, hasItem(newRule));
 	}
@@ -157,17 +128,12 @@ public class ApiTest {
 	public void whenRemoveForwardingRuleThenRuleNotPresent() throws JsonProcessingException {
 		ForwardingRule newRule = getRandomRule();
 		List<ForwardingRule> rulesAfterRemoval = null;
-		try {
-			api.login(USERNAME, PASSWORD);
-			List<ForwardingRule> rules = api.getForwardingRules();
-			rules.add(newRule);
-			api.setForwardingRules(rules);
-			rules.remove(rules.indexOf(newRule));
-			api.setForwardingRules(rules);
-			rulesAfterRemoval = api.getForwardingRules();
-		} finally {
-			api.close();
-		}
+		List<ForwardingRule> rules = api.getForwardingRules();
+		rules.add(newRule);
+		api.setForwardingRules(rules);
+		rules.remove(rules.indexOf(newRule));
+		api.setForwardingRules(rules);
+		rulesAfterRemoval = api.getForwardingRules();
 		assertThat(rulesAfterRemoval, not(hasItem(newRule)));
 	}
 
