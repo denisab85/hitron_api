@@ -86,15 +86,14 @@ public class EmailManager {
 		List<ForwardingRule> rules = null;
 
 		String ruleName = getProp("hitron.rule");
-		String port = "3396";
-		ForwardingRule rule = new ForwardingRule(1, ruleName, port, port, "3389", "3389", "TCP", "192.168.0.6", remoteIp, remoteIp, "Specific",
-				enable ? "ON" : "OFF");
+		int port = 3396;
+		ForwardingRule rule = new ForwardingRule(1, ruleName, port, port, 3389, 3389, "TCP", "192.168.0.6", remoteIp, remoteIp, true, enable);
 
 		try {
 			// Enable Firewall
 			ForwardingStatus status = api.getForwardingStatus();
-			report.add("Forwarding status (before): " + (status.getEnabled() ? "Enabled" : "Disabled"));
-			status.setEnabled(true);
+			report.add("Forwarding status (before): " + (status.isRulesOnOff() ? "Enabled" : "Disabled"));
+			status.setRulesOnOff(true);
 			api.setForwardingStatus(status);
 
 			// Add forwarding
@@ -106,7 +105,7 @@ public class EmailManager {
 			rules.add(rule);
 			api.setForwardingRules(rules);
 
-			report.add("Forwarding status (after): " + (api.getForwardingStatus().getEnabled() ? "Enabled" : "Disabled"));
+			report.add("Forwarding status (after): " + (api.getForwardingStatus().isRulesOnOff() ? "Enabled" : "Disabled"));
 			report.add("RDP forwarding set: " + api.getForwardingRules().contains(rule));
 		} finally {
 			api.close();

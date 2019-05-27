@@ -3,19 +3,15 @@ package hitron.web;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static util.Utils.getProp;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
@@ -25,14 +21,13 @@ public class ApiTest {
 	private static final String ROUTER_IP = getProp("hitron.host");
 	private static final String USERNAME = getProp("hitron.user");
 	private static final String PASSWORD = getProp("hitron.password");
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private static ForwardingStatus defaultStatus;
 	private static List<ForwardingRule> defaultRules;
 
-	private final Random random = new Random();
-
 	private static Api api;
+
+	private final Random random = new Random();
 
 	@Before
 	public void initApi() {
@@ -74,7 +69,7 @@ public class ApiTest {
 				"{\"ruleIndex\":1,\"appName\":\"%1$s\",\"pubStart\":\"%2$d\",\"pubEnd\":\"%2$d\",\"priStart\":\"%2$d\",\"priEnd\":\"%2$d\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"OFF\"}",
 				randomName, randomPort);
 		try {
-			result = OBJECT_MAPPER.readValue(json, ForwardingRule.class);
+			result = ForwardingRule.getObjectMapper().readValue(json, ForwardingRule.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,11 +93,11 @@ public class ApiTest {
 		ForwardingStatus status = null;
 		boolean enabledOld = false;
 		status = api.getForwardingStatus();
-		enabledOld = status.getEnabled();
-		status.setEnabled(!enabledOld);
+		enabledOld = status.isRulesOnOff();
+		status.setRulesOnOff(!enabledOld);
 		api.setForwardingStatus(status);
 		status = api.getForwardingStatus();
-		assertThat(status.getEnabled(), not(enabledOld));
+		assertThat(status.isRulesOnOff(), not(enabledOld));
 	}
 
 	@Test

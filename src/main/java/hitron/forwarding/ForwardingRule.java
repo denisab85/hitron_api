@@ -1,32 +1,42 @@
 package hitron.forwarding;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import hitron.jsonadapters.BooleanStringSerializer;
+import hitron.jsonadapters.RemoteIpDeserializer;
+import hitron.jsonadapters.RemoteIpSerializer;
+import hitron.jsonadapters.StringBooleanDeserializer;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
 public class ForwardingRule implements Comparable<ForwardingRule> {
 
+	@Getter
+	private static ObjectMapper objectMapper = new ObjectMapper();
+	
 	private transient int ruleIndex;
 	private String appName;
-	private String pubStart;
-	private String pubEnd;
-	private String priStart;
-	private String priEnd;
+	private int pubStart;
+	private int pubEnd;
+	private int priStart;
+	private int priEnd;
 	private String protocal;
 	private String localIpAddr;
 	private String remoteIpStar;
 	private String remoteIpEnd;
-	private String remoteOnOff;
-	private String ruleOnOff;
+	@JsonSerialize(using = RemoteIpSerializer.class)
+	@JsonDeserialize(using = RemoteIpDeserializer.class)
+	private boolean remoteOnOff;
+	@JsonSerialize(using = BooleanStringSerializer.class)
+	@JsonDeserialize(using = StringBooleanDeserializer.class)
+	private boolean ruleOnOff;
 
 	public ForwardingRule(String appName) {
 		this.appName = appName;
