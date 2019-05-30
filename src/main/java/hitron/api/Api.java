@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
+import hitron.status.SysInfo;
 import hitron.web.WebClient;
 import static util.Utils.*;
 
@@ -41,6 +42,20 @@ public class Api {
 			}
 		}
 		return csrfToken;
+	}
+
+	public SysInfo getSysInfo() {
+		try {
+			List<SysInfo> statusList = ForwardingStatus.getObjectMapper().readValue(webClient.get(getUri("GET_SYSINFO")),
+					new TypeReference<List<SysInfo>>() {
+					});
+			return statusList.get(0);
+		} catch (
+
+		IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public ForwardingStatus getForwardingStatus() {

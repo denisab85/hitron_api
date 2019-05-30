@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
+import hitron.status.SysInfo;
 
 public class ApiTest {
 
@@ -98,6 +99,13 @@ public class ApiTest {
 		api.setForwardingStatus(status);
 		status = api.getForwardingStatus();
 		assertThat(status.isRulesOnOff(), not(enabledOld));
+	}
+
+	@Test
+	public void whenGetSysInfoThenSysInfoReturned() {
+		SysInfo info = null;
+		info = api.getSysInfo();
+		assertThat(info, is(notNullValue()));
 	}
 
 	@Test
