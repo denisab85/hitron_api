@@ -55,6 +55,12 @@ public class Api {
 		return csrfToken;
 	}
 
+	/**
+	 * Returns router model. Does NOT require authentication, i.e. can be used
+	 * before login().
+	 * 
+	 * @return
+	 */
 	public SystemModel getSystemModel() {
 		try {
 			return objectMapper.readValue(webClient.get(getUri("GET_SYSTEM_MODEL")), new TypeReference<SystemModel>() {

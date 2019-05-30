@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
@@ -90,8 +89,7 @@ public class ApiTest {
 
 	@Test
 	public void whenGetForwardingStatusThenStatusReturned() {
-		ForwardingStatus status = null;
-		status = api.getForwardingStatus();
+		ForwardingStatus status = api.getForwardingStatus();
 		assertThat(status, is(notNullValue()));
 	}
 
@@ -109,29 +107,26 @@ public class ApiTest {
 
 	@Test
 	public void whenGetSystemModelThenSystemModelReturned() {
-		SystemModel info = null;
-		info = api.getSystemModel();
+		Api apiNoAuth = new Api("http://" + ROUTER_IP);
+		SystemModel info = apiNoAuth.getSystemModel();
 		assertThat(info, is(notNullValue()));
 	}
 
 	@Test
 	public void whenGetSysInfoThenSysInfoReturned() {
-		SysInfo info = null;
-		info = api.getSysInfo();
+		SysInfo info = api.getSysInfo();
 		assertThat(info, is(notNullValue()));
 	}
 
 	@Test
 	public void whenGetWirelesSsidThenWirelesSsidReturned() {
-		WirelesSsid info = null;
-		info = api.getWirelesSsid();
+		WirelesSsid info = api.getWirelesSsid();
 		assertThat(info, is(notNullValue()));
 	}
 
 	@Test
 	public void whenGetForwardingRulesThenRulesReturned() {
-		List<ForwardingRule> rules = null;
-		rules = api.getForwardingRules();
+		List<ForwardingRule> rules = api.getForwardingRules();
 		assertThat(rules, is(notNullValue()));
 	}
 
