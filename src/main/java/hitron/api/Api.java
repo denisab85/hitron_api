@@ -12,10 +12,12 @@ import org.apache.http.impl.client.HttpClients;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
-import hitron.status.SysInfo;
+import hitron.system.SysInfo;
 import hitron.web.WebClient;
+
 import static util.Utils.*;
 
 public class Api {

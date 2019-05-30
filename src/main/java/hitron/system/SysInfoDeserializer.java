@@ -1,4 +1,4 @@
-package hitron.status;
+package hitron.system;
 
 import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;

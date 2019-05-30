@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
-import hitron.status.SysInfo;
+import hitron.system.SysInfo;
 
 public class ApiTest {
 

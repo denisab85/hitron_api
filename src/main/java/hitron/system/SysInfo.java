@@ -1,12 +1,15 @@
-package hitron.status;
+package hitron.system;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonSerialize(using = SysInfoSerializer.class)
 @JsonDeserialize(using = SysInfoDeserializer.class)
 public class SysInfo {
