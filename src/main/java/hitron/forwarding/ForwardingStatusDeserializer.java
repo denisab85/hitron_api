@@ -15,16 +15,22 @@ public class ForwardingStatusDeserializer extends JsonDeserializer<ForwardingSta
 		ObjectCodec oc = parser.getCodec();
 		JsonNode node = oc.readTree(parser);
 		ForwardingStatus result = new ForwardingStatus();
-		result.setRulesOnOff(node.get("rulesOnOff").textValue().equalsIgnoreCase("Enabled"));
-		result.setPrivateLan(node.get("privateLan").textValue());
-		result.setSubMask(node.get("subMask").textValue());
-		result.setHttpPort(node.get("HttpPort").asInt());
-		result.setHttpsPort(node.get("HttpsPort").asInt());
-		result.setTelnetPort(node.get("TelnetPort").asInt());
-		result.setSshPort(node.get("SshPort").asInt());
-		if (node.has("forwardingRuleStatus")) {
+		if (node.has("rulesOnOff"))
+			result.setRulesOnOff(node.get("rulesOnOff").textValue().equalsIgnoreCase("Enabled"));
+		if (node.has("privateLan"))
+			result.setPrivateLan(node.get("privateLan").textValue());
+		if (node.has("subMask"))
+			result.setSubMask(node.get("subMask").textValue());
+		if (node.has("HttpPort"))
+			result.setHttpPort(node.get("HttpPort").asInt());
+		if (node.has("HttpsPort"))
+			result.setHttpsPort(node.get("HttpsPort").asInt());
+		if (node.has("TelnetPort"))
+			result.setTelnetPort(node.get("TelnetPort").asInt());
+		if (node.has("SshPort"))
+			result.setSshPort(node.get("SshPort").asInt());
+		if (node.has("forwardingRuleStatus"))
 			result.setForwardingRuleStatus(node.get("forwardingRuleStatus").asInt());
-		}
 		return result;
 	}
 
