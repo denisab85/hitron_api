@@ -3,11 +3,6 @@ package hitron.forwarding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import hitron.jsonadapters.BooleanStringSerializer;
-import hitron.jsonadapters.RemoteIpDeserializer;
-import hitron.jsonadapters.RemoteIpSerializer;
-import hitron.jsonadapters.StringBooleanDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -16,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonSerialize(using = ForwardingRuleSerializer.class)
+@JsonDeserialize(using = ForwardingRuleDeserializer.class)
 public class ForwardingRule implements Comparable<ForwardingRule> {
 
 	@Getter
@@ -31,11 +28,7 @@ public class ForwardingRule implements Comparable<ForwardingRule> {
 	private String localIpAddr;
 	private String remoteIpStar;
 	private String remoteIpEnd;
-	@JsonSerialize(using = RemoteIpSerializer.class)
-	@JsonDeserialize(using = RemoteIpDeserializer.class)
 	private boolean remoteOnOff;
-	@JsonSerialize(using = BooleanStringSerializer.class)
-	@JsonDeserialize(using = StringBooleanDeserializer.class)
 	private boolean ruleOnOff;
 
 	public ForwardingRule(String appName) {
