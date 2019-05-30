@@ -18,6 +18,7 @@ import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.SysInfo;
+import hitron.wireless.WirelesSsid;
 
 public class ApiTest {
 
@@ -109,6 +110,13 @@ public class ApiTest {
 	public void whenGetSysInfoThenSysInfoReturned() {
 		SysInfo info = null;
 		info = api.getSysInfo();
+		assertThat(info, is(notNullValue()));
+	}
+
+	@Test
+	public void whenGetWirelesSsidThenWirelesSsidReturned() {
+		WirelesSsid info = null;
+		info = api.getWirelesSsid();
 		assertThat(info, is(notNullValue()));
 	}
 

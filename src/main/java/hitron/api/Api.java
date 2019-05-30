@@ -17,6 +17,7 @@ import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.SysInfo;
 import hitron.web.WebClient;
+import hitron.wireless.WirelesSsid;
 
 import static util.Utils.*;
 
