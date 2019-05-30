@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
@@ -22,6 +24,8 @@ public class ApiTest {
 	private static final String ROUTER_IP = getProp("hitron.host");
 	private static final String USERNAME = getProp("hitron.user");
 	private static final String PASSWORD = getProp("hitron.password");
+
+	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static ForwardingStatus defaultStatus;
 	private static List<ForwardingRule> defaultRules;
@@ -70,7 +74,7 @@ public class ApiTest {
 				"{\"ruleIndex\":1,\"appName\":\"%1$s\",\"pubStart\":\"%2$d\",\"pubEnd\":\"%2$d\",\"priStart\":\"%2$d\",\"priEnd\":\"%2$d\",\"protocal\":\"TCP\",\"localIpAddr\":\"192.168.0.11\",\"remoteIpStar\":\"0.0.0.0\",\"remoteIpEnd\":\"255.255.255.255\",\"remoteOnOff\":\"Any\",\"ruleOnOff\":\"OFF\"}",
 				randomName, randomPort);
 		try {
-			result = ForwardingRule.getObjectMapper().readValue(json, ForwardingRule.class);
+			result = objectMapper.readValue(json, ForwardingRule.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -11,6 +11,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.status.SysInfo;
@@ -21,6 +22,8 @@ public class Api {
 
 	private WebClient webClient;
 	private String csrfToken;
+
+	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static final String TOKEN_PATTERN = "\\{\\s*\\\"token\\\"\\s*:\\s*\\\"(\\d+)\\\"\\s*\\}";
 
@@ -46,10 +49,23 @@ public class Api {
 
 	public SysInfo getSysInfo() {
 		try {
-			List<SysInfo> statusList = ForwardingStatus.getObjectMapper().readValue(webClient.get(getUri("GET_SYSINFO")),
-					new TypeReference<List<SysInfo>>() {
-					});
+			List<SysInfo> statusList = objectMapper.readValue(webClient.get(getUri("GET_SYSINFO")), new TypeReference<List<SysInfo>>() {
+			});
 			return statusList.get(0);
+		} catch (
+
+		IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public WirelesSsid getWirelesSsid() {
+		try {
+			List<WirelesSsid> wirelesSsidList = objectMapper.readValue(webClient.get(getUri("GET_WIRELESS_SSID")),
+					new TypeReference<List<WirelesSsid>>() {
+					});
+			return wirelesSsidList.get(0);
 		} catch (
 
 		IOException e) {
@@ -60,7 +76,7 @@ public class Api {
 
 	public ForwardingStatus getForwardingStatus() {
 		try {
-			List<ForwardingStatus> statusList = ForwardingStatus.getObjectMapper().readValue(webClient.get(getUri("GET_FW_STATUS")),
+			List<ForwardingStatus> statusList = objectMapper.readValue(webClient.get(getUri("GET_FW_STATUS")),
 					new TypeReference<List<ForwardingStatus>>() {
 					});
 			return statusList.get(0);
@@ -72,7 +88,7 @@ public class Api {
 
 	public List<ForwardingRule> getForwardingRules() {
 		try {
-			return ForwardingRule.getObjectMapper().readValue(webClient.get(getUri("GET_FW_RULES")), new TypeReference<List<ForwardingRule>>() {
+			return objectMapper.readValue(webClient.get(getUri("GET_FW_RULES")), new TypeReference<List<ForwardingRule>>() {
 			});
 		} catch (
 
@@ -84,8 +100,7 @@ public class Api {
 
 	public void setForwardingStatus(ForwardingStatus status) {
 		try {
-			String body = String.format("model=%s&csrf_token=%s", encodeValue(ForwardingStatus.getObjectMapper().writeValueAsString(status)),
-					csrfToken);
+			String body = String.format("model=%s&csrf_token=%s", encodeValue(objectMapper.writeValueAsString(status)), csrfToken);
 			webClient.post(getUri("SET_FW_STATUS"), body);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -94,8 +109,7 @@ public class Api {
 
 	public void setForwardingRules(List<ForwardingRule> rules) {
 		try {
-			String body = String.format("model=%s&csrf_token=%s&_method=PUT", encodeValue(ForwardingRule.getObjectMapper().writeValueAsString(rules)),
-					csrfToken);
+			String body = String.format("model=%s&csrf_token=%s&_method=PUT", encodeValue(objectMapper.writeValueAsString(rules)), csrfToken);
 			webClient.post(getUri("SET_FW_RULES"), body);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

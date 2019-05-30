@@ -1,21 +1,15 @@
 package hitron.status;
 
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@JsonSerialize(using = SysInfoSerializer.class)
+@JsonDeserialize(using = SysInfoDeserializer.class)
 public class SysInfo {
-
-	@Getter
-	private static ObjectMapper objectMapper = new ObjectMapper();
-
-	static {
-		objectMapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
-		objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-	}
 
 	private String hwVersion;
 	private String swVersion;
@@ -33,6 +27,6 @@ public class SysInfo {
 	private String lanIp;
 	private String LRecPkt;
 	private String LSendPkt;
-	private String gatewayOnOff;
+	private boolean gatewayOnOff;
 
 }

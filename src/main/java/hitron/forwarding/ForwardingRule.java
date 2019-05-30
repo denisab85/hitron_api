@@ -1,11 +1,9 @@
 package hitron.forwarding;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -15,9 +13,6 @@ import lombok.NoArgsConstructor;
 @JsonDeserialize(using = ForwardingRuleDeserializer.class)
 public class ForwardingRule implements Comparable<ForwardingRule> {
 
-	@Getter
-	private static ObjectMapper objectMapper = new ObjectMapper();
-	
 	private transient int ruleIndex;
 	private String appName;
 	private int pubStart;
