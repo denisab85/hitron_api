@@ -18,6 +18,7 @@ import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.SysInfo;
+import hitron.system.SystemModel;
 import hitron.wireless.WirelesSsid;
 
 public class ApiTest {
@@ -104,6 +105,13 @@ public class ApiTest {
 		api.setForwardingStatus(status);
 		status = api.getForwardingStatus();
 		assertThat(status.isRulesOnOff(), not(enabledOld));
+	}
+
+	@Test
+	public void whenGetSystemModelThenSystemModelReturned() {
+		SystemModel info = null;
+		info = api.getSystemModel();
+		assertThat(info, is(notNullValue()));
 	}
 
 	@Test

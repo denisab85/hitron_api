@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.SysInfo;
+import hitron.system.SystemModel;
 import hitron.web.WebClient;
 import hitron.wireless.WirelesSsid;
 
@@ -48,6 +49,18 @@ public class Api {
 			}
 		}
 		return csrfToken;
+	}
+
+	public SystemModel getSystemModel() {
+		try {
+			return objectMapper.readValue(webClient.get(getUri("GET_SYSTEM_MODEL")), new TypeReference<SystemModel>() {
+			});
+		} catch (
+
+		IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public SysInfo getSysInfo() {

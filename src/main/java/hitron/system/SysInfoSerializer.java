@@ -30,7 +30,6 @@ public class SysInfoSerializer extends JsonSerializer<SysInfo> {
 		jgen.writeStringField("LRecPkt", value.getLRecPkt());
 		jgen.writeStringField("LSendPkt", value.getLSendPkt());
 		jgen.writeStringField("gatewayOnOff", value.isGatewayOnOff() ? "Enabled" : "Disabled");
-
 		jgen.writeEndObject();
 	}
 }
