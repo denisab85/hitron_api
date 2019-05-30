@@ -33,6 +33,10 @@ public class Api {
 
 	private final CloseableHttpClient client = HttpClients.createDefault();
 
+	public Api(String homeUrl) {
+		webClient = new WebClient(homeUrl);
+	}
+
 	public Api(String homeUrl, String username, String password) {
 		webClient = new WebClient(homeUrl);
 		login(username, password);
