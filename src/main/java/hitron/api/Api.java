@@ -45,7 +45,7 @@ public class Api {
 
 	public String getCsrfToken() {
 		if (csrfToken == null) {
-			String response = webClient.get(getUri("CSRF"));
+			String response = webClient.get(getUri("GET_CSRF"));
 			Pattern record = Pattern.compile(TOKEN_PATTERN);
 			Matcher matcher = record.matcher(response);
 			if (matcher.find()) {
@@ -53,6 +53,11 @@ public class Api {
 			}
 		}
 		return csrfToken;
+	}
+
+	public String getUser() {
+		String response = webClient.get(getUri("GET_USER")).trim();
+		return response;
 	}
 
 	/**

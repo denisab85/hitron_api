@@ -88,6 +88,11 @@ public class ApiTest {
 	}
 
 	@Test
+	public void whenGetUserThenUsernameReturned() {
+		assertThat(api.getUser(), is(USERNAME));
+	}
+
+	@Test
 	public void whenGetForwardingStatusThenStatusReturned() {
 		ForwardingStatus status = api.getForwardingStatus();
 		assertThat(status, is(notNullValue()));
