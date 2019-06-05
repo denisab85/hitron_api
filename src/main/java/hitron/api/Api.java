@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.Battery;
+import hitron.system.SessionStatus;
 import hitron.system.SysInfo;
 import hitron.system.SystemModel;
 import hitron.web.WebClient;
@@ -65,9 +66,17 @@ public class Api {
 		try {
 			return objectMapper.readValue(webClient.get(getUri("GET_BATTERY")), new TypeReference<Battery>() {
 			});
-		} catch (
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
-		IOException e) {
+	public SessionStatus getSessionStatus() {
+		try {
+			return objectMapper.readValue(webClient.get(getUri("GET_SESSION_STATUS")), new TypeReference<SessionStatus>() {
+			});
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -83,9 +92,7 @@ public class Api {
 		try {
 			return objectMapper.readValue(webClient.get(getUri("GET_SYSTEM_MODEL")), new TypeReference<SystemModel>() {
 			});
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -96,9 +103,7 @@ public class Api {
 			List<SysInfo> statusList = objectMapper.readValue(webClient.get(getUri("GET_SYSINFO")), new TypeReference<List<SysInfo>>() {
 			});
 			return statusList.get(0);
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -110,9 +115,7 @@ public class Api {
 					new TypeReference<List<WirelesSsid>>() {
 					});
 			return wirelesSsidList.get(0);
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -134,9 +137,7 @@ public class Api {
 		try {
 			return objectMapper.readValue(webClient.get(getUri("GET_FW_RULES")), new TypeReference<List<ForwardingRule>>() {
 			});
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;

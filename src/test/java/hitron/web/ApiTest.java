@@ -17,6 +17,7 @@ import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
 import hitron.system.Battery;
+import hitron.system.SessionStatus;
 import hitron.system.SysInfo;
 import hitron.system.SystemModel;
 import hitron.wireless.WirelesSsid;
@@ -97,6 +98,12 @@ public class ApiTest {
 	public void whenGetBatteryThenBatteryReturned() {
 		Battery battery = api.battery();
 		assertThat(battery, is(notNullValue()));
+	}
+
+	@Test
+	public void whenGetSessionStatusThenAliveReturned() {
+		SessionStatus sessionStatus = api.getSessionStatus();
+		assertThat(sessionStatus.getSessionStatus(), is(true));
 	}
 
 	@Test
