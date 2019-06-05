@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
+import hitron.system.Battery;
 import hitron.system.SysInfo;
 import hitron.system.SystemModel;
 import hitron.web.WebClient;
@@ -58,6 +59,18 @@ public class Api {
 	public String getUser() {
 		String response = webClient.get(getUri("GET_USER")).trim();
 		return response;
+	}
+
+	public Battery battery() {
+		try {
+			return objectMapper.readValue(webClient.get(getUri("GET_BATTERY")), new TypeReference<Battery>() {
+			});
+		} catch (
+
+		IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

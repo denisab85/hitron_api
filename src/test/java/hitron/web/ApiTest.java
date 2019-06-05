@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hitron.api.Api;
 import hitron.forwarding.ForwardingRule;
 import hitron.forwarding.ForwardingStatus;
+import hitron.system.Battery;
 import hitron.system.SysInfo;
 import hitron.system.SystemModel;
 import hitron.wireless.WirelesSsid;
@@ -90,6 +91,12 @@ public class ApiTest {
 	@Test
 	public void whenGetUserThenUsernameReturned() {
 		assertThat(api.getUser(), is(USERNAME));
+	}
+
+	@Test
+	public void whenGetBatteryThenBatteryReturned() {
+		Battery battery = api.battery();
+		assertThat(battery, is(notNullValue()));
 	}
 
 	@Test
